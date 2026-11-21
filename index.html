@@ -58,19 +58,21 @@ html:not([data-theme=dark]) .steps li::before{color:#fff}
 .steps span{display:block;font-size:14px;color:var(--mut)}
 footer{margin-top:34px;width:100%;max-width:400px;font-size:12.5px;line-height:1.55;color:var(--mut)}
 footer a{display:inline-block;margin-top:10px;padding:6px 12px;border-radius:99px;background:rgba(var(--grgb),.1);color:var(--mut);text-decoration:none;font-size:12.5px}
-noscript p{position:relative;z-index:3;padding:14px;text-align:center;background:#F5B301;color:#2A1B00}
+html[data-theme=dark] noscript p{position:relative;z-index:3;padding:14px;text-align:center;background:#F5B301;color:#2A1B00}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 <script>
 var CONFIG={
   NAME:"Grow Skills with GAUTAM Jha",
-  PIXEL_ID:"1452119909710710",
-  TG_LINK:"https://t.me/+0bsd0OOpOdcyNzI1",
+  PIXEL_ID:"1091215963932706",
+  TG_LINK_B64:"aHR0cHM6Ly90Lm1lLyswYnNkME9PcE9kY3lOekkx", // Telegram link base64 me hai (btoa), taaki page source se scraper/bot ko seedha link na mile
   EVENT:"Lead",          // Lead ya Subscribe
-  MIN_DWELL_MS:2500,     // itni der page visible rahe tabhi button active
+  MIN_DWELL_MS:4000,     // itni der page visible rahe
+  MIN_SCROLL_PX:80,      // "कैसे जुड़ें" section tak itna scroll zaroori
+  MIN_READ_MS:1500,      // us section tak pahunchne ke baad itni der ruke
   COOLDOWN_HRS:24,       // ek device se 24 ghante me ek hi Lead
-  INDIA_ONLY:false,      // true: sirf India timezone wale visitors ko button
-  REQUIRE_FBCLID:false   // true: sirf Meta ad (fbclid wale) visitors ko button; ads live hone ke baad test karke on karein
+  INDIA_ONLY:true,       // true: sirf India timezone wale visitors ko button (foreign bot/click-farm band)
+  REQUIRE_FBCLID:false   // true: sirf Meta ad (fbclid wale) visitors; ads live hone ke baad test karke on karein
 };
 var UA=navigator.userAgent||"";
 var IS_MOBILE=/Android|iPhone|iPad|iPod|Mobile/i.test(UA);
@@ -85,6 +87,7 @@ function automationDetected(){
     if(!screen.width||!screen.height||!window.innerWidth||!window.innerHeight)return true;
     if(IS_MOBILE&&!(navigator.maxTouchPoints>0)&&!("ontouchstart" in window))return true; // mobile UA spoof
     if(!IS_MOBILE&&/Chrome\//.test(UA)&&(!window.chrome||!navigator.plugins||!navigator.plugins.length))return true;
+    if(!IS_MOBILE){var cv0=document.createElement("canvas"),g2=cv0.getContext("webgl")||cv0.getContext("experimental-webgl");if(g2){var ex=g2.getExtension("WEBGL_debug_renderer_info");if(ex&&/SwiftShader|llvmpipe|Mesa OffScreen/i.test(String(g2.getParameter(ex.UNMASKED_RENDERER_WEBGL))))return true}}   // headless/server rendering
   }catch(e){}
   return false;
 }
@@ -114,8 +117,8 @@ if(ALLOWED){fbq("init",CONFIG.PIXEL_ID)}
     </div>
     <h1>Grow Skills with GAUTAM Jha</h1>
     <p class="sub">ट्रेडिंग और शेयर बाज़ार की स्किल्स, सही तरीके से सीखें।<span>Learn trading and market skills the right way.</span></p>
-    <a class="cta" aria-disabled="true" rel="noopener"><span class="fill"></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.5 3.6L2.9 10.8c-1.3.5-1.2 1.2-.2 1.5l4.8 1.5 1.8 5.6c.2.6.1.8.7.8.5 0 .7-.2 1-.5l2.3-2.2 4.8 3.5c.9.5 1.5.2 1.7-.8l3.1-14.7c.3-1.2-.5-1.8-1.4-1.4zM8.4 13.6l9.2-5.8c.4-.3.8-.1.5.2l-7.6 6.9-.3 3.2z"/></svg><span class="t">Page taiyaar ho raha hai</span></a>
-    <p class="hint">Button kuch hi second me active ho jayega.</p>
+    <a class="cta" aria-disabled="true" rel="noopener"><span class="fill"></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.5 3.6L2.9 10.8c-1.3.5-1.2 1.2-.2 1.5l4.8 1.5 1.8 5.6c.2.6.1.8.7.8.5 0 .7-.2 1-.5l2.3-2.2 4.8 3.5c.9.5 1.5.2 1.7-.8l3.1-14.7c.3-1.2-.5-1.8-1.4-1.4zM8.4 13.6l9.2-5.8c.4-.3.8-.1.5.2l-7.6 6.9-.3 3.2z"/></svg><span class="t">Pehle neeche scroll karein</span></a>
+    <p class="hint">Neeche scroll karke “कैसे जुड़ें” padhein, phir button active hoga.</p>
   </section>
 
   <section class="sec">
@@ -136,8 +139,8 @@ if(ALLOWED){fbq("init",CONFIG.PIXEL_ID)}
   </section>
 
   <section class="hero" style="padding-top:30px">
-    <a class="cta" aria-disabled="true" rel="noopener"><span class="fill"></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.5 3.6L2.9 10.8c-1.3.5-1.2 1.2-.2 1.5l4.8 1.5 1.8 5.6c.2.6.1.8.7.8.5 0 .7-.2 1-.5l2.3-2.2 4.8 3.5c.9.5 1.5.2 1.7-.8l3.1-14.7c.3-1.2-.5-1.8-1.4-1.4zM8.4 13.6l9.2-5.8c.4-.3.8-.1.5.2l-7.6 6.9-.3 3.2z"/></svg><span class="t">Page taiyaar ho raha hai</span></a>
-    <p class="hint">Button kuch hi second me active ho jayega.</p>
+    <a class="cta" aria-disabled="true" rel="noopener"><span class="fill"></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.5 3.6L2.9 10.8c-1.3.5-1.2 1.2-.2 1.5l4.8 1.5 1.8 5.6c.2.6.1.8.7.8.5 0 .7-.2 1-.5l2.3-2.2 4.8 3.5c.9.5 1.5.2 1.7-.8l3.1-14.7c.3-1.2-.5-1.8-1.4-1.4zM8.4 13.6l9.2-5.8c.4-.3.8-.1.5.2l-7.6 6.9-.3 3.2z"/></svg><span class="t">Pehle neeche scroll karein</span></a>
+    <p class="hint">Neeche scroll karke “कैसे जुड़ें” padhein, phir button active hoga.</p>
   </section>
 
   <footer>
@@ -200,21 +203,34 @@ theme();setInterval(theme,60000);
 
 if(inApp&&isIOS){var b=document.getElementById("iab");b.style.display="block";b.textContent="Behtar result ke liye upar ke menu se \u201COpen in Browser\u201D chunein.";}
 
-/* ---------- anti-fake logic ---------- */
+/* ---------- anti-fake logic (scroll + padhne ka time + real touch + automation filters) ---------- */
 function ss(k,v){try{if(v===undefined)return sessionStorage.getItem(k);sessionStorage.setItem(k,v)}catch(e){}return null}
 function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){}return null}
-var KEY="tg_lead_"+CONFIG.PIXEL_ID,ready=false,readyAt=0,vis=0,last=performance.now(),ints=0,lastDown=-1e9;
+var KEY="tg_lead_"+CONFIG.PIXEL_ID,ready=false,readyAt=0,vis=0,last=performance.now(),ints=0,lastDown=-1e9,pressed=false,reached=false,reachedAt=0,uiKey="";
+var stepsEl=document.querySelector(".steps");
 
 ["touchstart","pointerdown","mousedown","keydown","wheel","mousemove"].forEach(function(ev){
   addEventListener(ev,function(e){
     if(!e.isTrusted)return;
     ints++;
-    if(ev!=="mousemove"&&ev!=="wheel")lastDown=performance.now();
+    if(ev!=="mousemove"&&ev!=="wheel"){lastDown=performance.now();pressed=true}
   },{passive:true,capture:true});
 });
 
+/* visitor ne "कैसे जुड़ें" section tak scroll kiya? (accidental click / bot page ko bina dekhe aage nahi badh sakta) */
+function checkScroll(){
+  if(reached||!stepsEl)return;
+  var r=stepsEl.getBoundingClientRect(),sy=window.pageYOffset||document.documentElement.scrollTop||0;
+  var scrollable=document.documentElement.scrollHeight>innerHeight+200;
+  if(r.top<innerHeight*.85&&(sy>=CONFIG.MIN_SCROLL_PX||!scrollable)){reached=true;reachedAt=performance.now()}
+}
+addEventListener("scroll",checkScroll,{passive:true});
+
+function human(){return IS_MOBILE?pressed:ints>0}   // mobile par real touch zaroori, desktop par real mouse/key/wheel
+
 function tgHref(){
-  var link=CONFIG.TG_LINK;
+  var link="";try{link=atob(CONFIG.TG_LINK_B64)}catch(e){}
+  if(!link)return "";
   if(isAndroid&&inApp){
     return "intent://"+link.replace(/^https?:\/\//,"")+"#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url="+encodeURIComponent(link)+";end";
   }
@@ -223,23 +239,33 @@ function tgHref(){
 function each(fn){ctas.forEach(function(c){fn(c,c.querySelector(".t"),c.nextElementSibling)})}
 function setP(p){root.style.setProperty("--p",p);prg.style.strokeDashoffset=100*(1-p)}
 function unlock(){
-  if(ready)return;ready=true;readyAt=performance.now();
+  ready=true;readyAt=performance.now();
   each(function(c,t,h){c.href=tgHref();c.removeAttribute("aria-disabled");c.classList.add("on");t.textContent="Telegram par free join karein";h.textContent="Telegram khulne par Join / Request to Join dabayein."});
   root.classList.add("ready");
   if(!ss("tg_pv")){ss("tg_pv","1");try{fbq("track","PageView")}catch(e){}}   // sirf qualified visitor ka PageView
+}
+function lockUI(k){
+  if(k===uiKey)return;uiKey=k;
+  var m={scroll:["Pehle neeche scroll karein","Neeche scroll karke \u201Cकैसे जुड़ें\u201D padhein, phir button active hoga."],wait:["Page taiyaar ho raha hai","Bas kuch second me button active ho jayega."],touch:["Screen ko ek baar touch karein","Button active karne ke liye screen ko touch ya scroll karein."]}[k];
+  each(function(c,t,h){t.textContent=m[0];h.textContent=m[1]});
+}
+function refresh(){
+  if(ready||!ALLOWED)return;
+  var n=performance.now();
+  if(!reached){lockUI("scroll");return}
+  if(vis<CONFIG.MIN_DWELL_MS||n-reachedAt<CONFIG.MIN_READ_MS){lockUI("wait");return}
+  if(!human()){lockUI("touch");return}
+  unlock();
 }
 
 if(!ALLOWED){
   each(function(c,t,h){t.textContent=BOT?"Page taiyaar ho raha hai":(!GEO_OK?"Yeh page sirf India ke liye hai":"Meta ad link se page kholein");h.textContent=""});
 }else{
-  var tm=setInterval(function(){
+  setInterval(function(){
     var n=performance.now(),d=n-last;last=n;
     if(document.visibilityState==="visible")vis+=Math.min(d,300);
-    var p=Math.min(vis/CONFIG.MIN_DWELL_MS,1);setP(p);
-    if(p>=1){
-      if(ints>0){clearInterval(tm);unlock()}
-      else each(function(c,t,h){h.textContent="Screen ko ek baar touch ya scroll karein."});   // human signal ka intezaar
-    }
+    setP(Math.min(vis/CONFIG.MIN_DWELL_MS,1));
+    checkScroll();refresh();
   },100);
 }
 
@@ -249,7 +275,7 @@ ctas.forEach(function(c){c.addEventListener("click",function(e){
   else if(n-readyAt<500)bad=true;                                   // unlock ke turant baad ghost/accidental tap
   else if(n-lastDown>5000)bad=true;                                 // click se pehle real touch/mouse/key press nahi
   else if(document.visibilityState!=="visible")bad=true;
-  else if(e.detail>0){                                              // mouse/touch click ki position button ke andar honi chahiye
+  else if(e.detail>0){                                              // click ki position button ke andar honi chahiye
     var r=c.getBoundingClientRect();
     if((e.clientX===0&&e.clientY===0)||e.clientX<r.left-2||e.clientX>r.right+2||e.clientY<r.top-2||e.clientY>r.bottom+2)bad=true;
   }
@@ -257,7 +283,7 @@ ctas.forEach(function(c){c.addEventListener("click",function(e){
   var now=Date.now(),prev=+ls(KEY)||0;
   if(ss(KEY)||(prev&&now-prev<CONFIG.COOLDOWN_HRS*36e5))return;     // dobara Lead nahi; navigation chalta rahe
   ss(KEY,"1");ls(KEY,String(now));
-  try{fbq("track",CONFIG.EVENT,{content_name:CONFIG.NAME,content_category:"Telegram Join"},{eventID:"l_"+now+"_"+Math.random().toString(36).slice(2,10)})}catch(err){}
+  try{fbq("track",CONFIG.EVENT,{content_name:CONFIG.NAME,content_category:"Telegram Join",src:/[?&]fbclid=/.test(location.search)?"fbclid":"direct"},{eventID:"l_"+now+"_"+Math.random().toString(36).slice(2,10)})}catch(err){}
   // valid tap par koi preventDefault / setTimeout nahi: native anchor navigation
 },false)});
 })();
