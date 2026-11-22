@@ -74,6 +74,21 @@ html[data-theme=dark] noscript p{position:relative;z-index:3;padding:14px;text-a
 .shl{display:flex;justify-content:center;align-items:center;gap:18px;margin-top:12px;font-size:13.5px}
 .shl a{color:var(--mut)}
 .shl button{background:none;border:0;font:600 14px Hind,sans-serif;color:var(--text);padding:6px 10px;cursor:pointer}
+@media (max-width:520px){
+.wrap{padding-top:calc(env(safe-area-inset-top,0px) + 12px)}
+.hero{padding:12px 0 0}
+.tile{width:112px;height:112px;margin:0 auto 12px}
+.tile img{left:8px;top:8px;width:96px;height:96px;border-radius:18px}
+h1{font-size:clamp(25px,7.4vw,32px)}
+.sub{margin:8px auto 14px;font-size:15.5px;line-height:1.35}
+.sub span{font-size:13.5px}
+.cta{height:58px}
+.hint{margin-top:8px;font-size:13px}
+.sec{margin-top:22px}
+.lr{padding:11px 2px}
+.hero[style]{padding-top:14px!important}
+footer{margin-top:22px}
+}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 <script>
