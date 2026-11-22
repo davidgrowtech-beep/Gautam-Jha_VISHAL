@@ -59,6 +59,21 @@ html:not([data-theme=dark]) .steps li::before{color:#fff}
 footer{margin-top:34px;width:100%;max-width:400px;font-size:12.5px;line-height:1.55;color:var(--mut)}
 footer a{display:inline-block;margin-top:10px;padding:6px 12px;border-radius:99px;background:rgba(var(--grgb),.1);color:var(--mut);text-decoration:none;font-size:12.5px}
 html[data-theme=dark] noscript p{position:relative;z-index:3;padding:14px;text-align:center;background:#F5B301;color:#2A1B00}
+
+.sw{display:none;position:absolute;left:0;top:0;right:0;bottom:0;z-index:3;border-radius:inherit;background:rgba(var(--grgb),.12);align-items:center;justify-content:center;user-select:none;-webkit-user-select:none}
+.cta.swipe .sw{display:flex}
+.sw .pf{position:absolute;left:0;top:0;bottom:0;width:0;background:rgba(var(--grgb),.28);border-radius:inherit}
+.sw .lbl{position:relative;padding-left:58px;font:600 16px Hind,system-ui,sans-serif;color:var(--text)}
+.sw .kn{position:absolute;left:4px;top:4px;bottom:4px;width:54px;border-radius:12px;background:linear-gradient(100deg,var(--c1),var(--c2));color:var(--ctat);display:grid;place-items:center;font:700 26px/1 Hind,sans-serif;touch-action:none;cursor:grab;box-shadow:0 4px 14px rgba(var(--grgb),.4);animation:nudge 1.8s ease-in-out infinite}
+@keyframes nudge{0%,100%{margin-left:0}50%{margin-left:8px}}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:20;padding:18px 18px calc(env(safe-area-inset-bottom,0px) + 16px);background:var(--bg1);border-top:1px solid var(--line);box-shadow:0 -14px 38px rgba(0,0,0,.2);border-radius:20px 20px 0 0;text-align:center;visibility:hidden;transform:translateY(110%);transition:transform .35s,visibility .35s}
+.sheet.show{visibility:visible;transform:none}
+.sheet b{display:block;font-size:18px;font-weight:700;line-height:1.3}
+.sheet p{margin:6px auto 14px;max-width:340px;font-size:14.5px;line-height:1.45;color:var(--mut)}
+.rbtn{display:flex;align-items:center;justify-content:center;width:100%;max-width:360px;height:56px;margin:0 auto;border-radius:14px;font:700 18px Hind,system-ui,sans-serif;text-decoration:none;background:linear-gradient(100deg,var(--c1),var(--c2));color:var(--ctat);box-shadow:0 8px 22px rgba(var(--grgb),.35);-webkit-tap-highlight-color:transparent}
+.shl{display:flex;justify-content:center;align-items:center;gap:18px;margin-top:12px;font-size:13.5px}
+.shl a{color:var(--mut)}
+.shl button{background:none;border:0;font:600 14px Hind,sans-serif;color:var(--text);padding:6px 10px;cursor:pointer}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 <script>
@@ -67,34 +82,41 @@ var CONFIG={
   PIXEL_ID:"1091215963932706",
   TG_LINK_B64:"aHR0cHM6Ly90Lm1lLyswYnNkME9PcE9kY3lOekkx", // Telegram link base64 me hai (btoa), taaki page source se scraper/bot ko seedha link na mile
   EVENT:"Lead",          // Lead ya Subscribe
-  MIN_DWELL_MS:4000,     // itni der page visible rahe
+  MIN_DWELL_MS:5000,     // itni der page visible rahe
   MIN_SCROLL_PX:80,      // "कैसे जुड़ें" section tak itna scroll zaroori
-  MIN_READ_MS:1500,      // us section tak pahunchne ke baad itni der ruke
+  MIN_READ_MS:2000,      // us section tak pahunchne ke baad itni der ruke
+  SWIPE:true,            // true: button unlock karne ke liye slider swipe karna padega (form ki jagah "intent" filter; bot/accidental tap band)
+  LEAD_AT:"handoff",     // "handoff": Lead tabhi jab Telegram sach me khul gaya (page background me gaya) | "tap": purana tarika, button dabate hi Lead
+  HANDOFF_MS:2800,       // tap ke itni der baad bhi page saamne hai => Telegram nahi khula => "dobara try" sheet
+  HANDOFF_WINDOW_MS:8000,// tap ke baad itne time ke andar page background gaya tabhi Lead mane
   COOLDOWN_HRS:24,       // ek device se 24 ghante me ek hi Lead
   INDIA_ONLY:true,       // true: sirf India timezone wale visitors ko button (foreign bot/click-farm band)
   REQUIRE_FBCLID:false   // true: sirf Meta ad (fbclid wale) visitors; ads live hone ke baad test karke on karein
 };
 var UA=navigator.userAgent||"";
 var IS_MOBILE=/Android|iPhone|iPad|iPod|Mobile/i.test(UA);
+function W(c){window.__why=c;return true}
 function automationDetected(){
   try{
-    if(navigator.webdriver)return true;
-    if(/Googlebot|bingbot|Bytespider|facebookexternalhit|Facebot|Applebot|AhrefsBot|SemrushBot|YandexBot|DuckDuckBot|Slurp|HeadlessChrome|PhantomJS|Puppeteer|Playwright|Lighthouse|Selenium|python-requests|curl\/|wget|Go-http|axios|node-fetch/i.test(UA))return true;
-    if(window.callPhantom||window._phantom||window.__nightmare||window.domAutomation||window.domAutomationController)return true;
-    if(document.documentElement.getAttribute("webdriver"))return true;
-    for(var k in document){if(/^\$?cdc_|^\$wdc_/.test(k))return true}
-    if(!navigator.languages||!navigator.languages.length)return true;
-    if(!screen.width||!screen.height||!window.innerWidth||!window.innerHeight)return true;
-    if(IS_MOBILE&&!(navigator.maxTouchPoints>0)&&!("ontouchstart" in window))return true; // mobile UA spoof
-    if(!IS_MOBILE&&/Chrome\//.test(UA)&&(!window.chrome||!navigator.plugins||!navigator.plugins.length))return true;
-    if(!IS_MOBILE){var cv0=document.createElement("canvas"),g2=cv0.getContext("webgl")||cv0.getContext("experimental-webgl");if(g2){var ex=g2.getExtension("WEBGL_debug_renderer_info");if(ex&&/SwiftShader|llvmpipe|Mesa OffScreen/i.test(String(g2.getParameter(ex.UNMASKED_RENDERER_WEBGL))))return true}}   // headless/server rendering
+    if(navigator.webdriver)return W(1);
+    if(/Googlebot|bingbot|Bytespider|facebookexternalhit|Facebot|Applebot|AhrefsBot|SemrushBot|YandexBot|DuckDuckBot|Slurp|HeadlessChrome|PhantomJS|Puppeteer|Playwright|Lighthouse|Selenium|python-requests|curl\/|wget|Go-http|axios|node-fetch/i.test(UA))return W(2);
+    if(window.callPhantom||window._phantom||window.__nightmare||window.domAutomation||window.domAutomationController)return W(3);
+    if(document.documentElement.getAttribute("webdriver"))return W(4);
+    for(var k in document){if(/^\$?cdc_|^\$wdc_/.test(k))return W(5)}
+    if(!navigator.languages||!navigator.languages.length)return W(6);
+    if(!screen.width||!screen.height||!window.innerWidth||!window.innerHeight)return W(7);
+    if(IS_MOBILE&&!(navigator.maxTouchPoints>0)&&!("ontouchstart" in window))return W(8); // mobile UA spoof
+    if(!IS_MOBILE&&/Chrome\//.test(UA)&&(!window.chrome||!navigator.plugins||!navigator.plugins.length))return W(9);
+    if(!IS_MOBILE){var cv0=document.createElement("canvas"),g2=cv0.getContext("webgl")||cv0.getContext("experimental-webgl");if(g2){var ex=g2.getExtension("WEBGL_debug_renderer_info");if(ex&&/SwiftShader|llvmpipe|Mesa OffScreen/i.test(String(g2.getParameter(ex.UNMASKED_RENDERER_WEBGL)))&&(!navigator.plugins||!navigator.plugins.length))return W(10)}}   // headless/server rendering
   }catch(e){}
   return false;
 }
 function isIndia(){try{return /^Asia\/(Kolkata|Calcutta)$/.test(Intl.DateTimeFormat().resolvedOptions().timeZone)}catch(e){return true}}
 var BOT=automationDetected();
 var GEO_OK=!CONFIG.INDIA_ONLY||isIndia();
-var SRC_OK=!CONFIG.REQUIRE_FBCLID||/[?&]fbclid=/.test(location.search);
+var HAS_FBCLID=/[?&]fbclid=/.test(location.search);
+try{if(HAS_FBCLID)sessionStorage.setItem("fbc","1");else if(sessionStorage.getItem("fbc"))HAS_FBCLID=true}catch(e){}
+var SRC_OK=!CONFIG.REQUIRE_FBCLID||HAS_FBCLID;
 var ALLOWED=!BOT&&GEO_OK&&SRC_OK;
 !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version="2.0";n.queue=[];if(ALLOWED){t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}}(window,document,"script","https://connect.facebook.net/en_US/fbevents.js");
 if(ALLOWED){fbq("init",CONFIG.PIXEL_ID)}
@@ -117,7 +139,7 @@ if(ALLOWED){fbq("init",CONFIG.PIXEL_ID)}
     </div>
     <h1>Grow Skills with GAUTAM Jha</h1>
     <p class="sub">ट्रेडिंग और शेयर बाज़ार की स्किल्स, सही तरीके से सीखें।<span>Learn trading and market skills the right way.</span></p>
-    <a class="cta" aria-disabled="true" rel="noopener"><span class="fill"></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.5 3.6L2.9 10.8c-1.3.5-1.2 1.2-.2 1.5l4.8 1.5 1.8 5.6c.2.6.1.8.7.8.5 0 .7-.2 1-.5l2.3-2.2 4.8 3.5c.9.5 1.5.2 1.7-.8l3.1-14.7c.3-1.2-.5-1.8-1.4-1.4zM8.4 13.6l9.2-5.8c.4-.3.8-.1.5.2l-7.6 6.9-.3 3.2z"/></svg><span class="t">Pehle neeche scroll karein</span></a>
+    <a class="cta" aria-disabled="true" rel="noopener"><span class="fill"></span><span class="sw" aria-hidden="true"><span class="pf"></span><span class="lbl">स्वाइप करें · Swipe to unlock</span><span class="kn">&raquo;</span></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.5 3.6L2.9 10.8c-1.3.5-1.2 1.2-.2 1.5l4.8 1.5 1.8 5.6c.2.6.1.8.7.8.5 0 .7-.2 1-.5l2.3-2.2 4.8 3.5c.9.5 1.5.2 1.7-.8l3.1-14.7c.3-1.2-.5-1.8-1.4-1.4zM8.4 13.6l9.2-5.8c.4-.3.8-.1.5.2l-7.6 6.9-.3 3.2z"/></svg><span class="t">Pehle neeche scroll karein</span></a>
     <p class="hint">Neeche scroll karke “कैसे जुड़ें” padhein, phir button active hoga.</p>
   </section>
 
@@ -139,7 +161,7 @@ if(ALLOWED){fbq("init",CONFIG.PIXEL_ID)}
   </section>
 
   <section class="hero" style="padding-top:30px">
-    <a class="cta" aria-disabled="true" rel="noopener"><span class="fill"></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.5 3.6L2.9 10.8c-1.3.5-1.2 1.2-.2 1.5l4.8 1.5 1.8 5.6c.2.6.1.8.7.8.5 0 .7-.2 1-.5l2.3-2.2 4.8 3.5c.9.5 1.5.2 1.7-.8l3.1-14.7c.3-1.2-.5-1.8-1.4-1.4zM8.4 13.6l9.2-5.8c.4-.3.8-.1.5.2l-7.6 6.9-.3 3.2z"/></svg><span class="t">Pehle neeche scroll karein</span></a>
+    <a class="cta" aria-disabled="true" rel="noopener"><span class="fill"></span><span class="sw" aria-hidden="true"><span class="pf"></span><span class="lbl">स्वाइप करें · Swipe to unlock</span><span class="kn">&raquo;</span></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.5 3.6L2.9 10.8c-1.3.5-1.2 1.2-.2 1.5l4.8 1.5 1.8 5.6c.2.6.1.8.7.8.5 0 .7-.2 1-.5l2.3-2.2 4.8 3.5c.9.5 1.5.2 1.7-.8l3.1-14.7c.3-1.2-.5-1.8-1.4-1.4zM8.4 13.6l9.2-5.8c.4-.3.8-.1.5.2l-7.6 6.9-.3 3.2z"/></svg><span class="t">Pehle neeche scroll karein</span></a>
     <p class="hint">Neeche scroll karke “कैसे जुड़ें” padhein, phir button active hoga.</p>
   </section>
 
@@ -148,6 +170,12 @@ if(ALLOWED){fbq("init",CONFIG.PIXEL_ID)}
     <a href="https://t.me/srsagency" target="_blank" rel="noopener">Advertised by: SRS Marketing Agency</a>
   </footer>
 </main>
+
+<div class="sheet" id="sheet" role="dialog" aria-live="polite">
+  <b id="shT"></b><p id="shP"></p>
+  <a class="rbtn" id="shGo" rel="noopener"><span id="shB"></span></a>
+  <div class="shl"><a id="shInst" target="_blank" rel="noopener"></a><button type="button" id="shOk">ठीक है · Done</button></div>
+</div>
 
 <script>
 (function(){
@@ -207,7 +235,7 @@ if(inApp&&isIOS){var b=document.getElementById("iab");b.style.display="block";b.
 function ss(k,v){try{if(v===undefined)return sessionStorage.getItem(k);sessionStorage.setItem(k,v)}catch(e){}return null}
 function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){}return null}
 var KEY="tg_lead_"+CONFIG.PIXEL_ID,ready=false,readyAt=0,vis=0,last=performance.now(),ints=0,lastDown=-1e9,pressed=false,reached=false,reachedAt=0,uiKey="";
-var stepsEl=document.querySelector(".steps");
+var stepsEl=document.querySelector(".steps"),swiped=false;
 
 ["touchstart","pointerdown","mousedown","keydown","wheel","mousemove"].forEach(function(ev){
   addEventListener(ev,function(e){
@@ -240,26 +268,27 @@ function each(fn){ctas.forEach(function(c){fn(c,c.querySelector(".t"),c.nextElem
 function setP(p){root.style.setProperty("--p",p);prg.style.strokeDashoffset=100*(1-p)}
 function unlock(){
   ready=true;readyAt=performance.now();
-  each(function(c,t,h){c.href=tgHref();c.removeAttribute("aria-disabled");c.classList.add("on");t.textContent="Telegram par free join karein";h.textContent="Telegram khulne par Join / Request to Join dabayein."});
+  each(function(c,t,h){c.href=tgHref();c.removeAttribute("aria-disabled");c.classList.remove("swipe");c.classList.add("on");t.textContent="Telegram par free join karein";h.textContent="Telegram khulne par Join / Request to Join dabayein."});
   root.classList.add("ready");
   if(!ss("tg_pv")){ss("tg_pv","1");try{fbq("track","PageView")}catch(e){}}   // sirf qualified visitor ka PageView
 }
 function lockUI(k){
   if(k===uiKey)return;uiKey=k;
-  var m={scroll:["Pehle neeche scroll karein","Neeche scroll karke \u201Cकैसे जुड़ें\u201D padhein, phir button active hoga."],wait:["Page taiyaar ho raha hai","Bas kuch second me button active ho jayega."],touch:["Screen ko ek baar touch karein","Button active karne ke liye screen ko touch ya scroll karein."]}[k];
-  each(function(c,t,h){t.textContent=m[0];h.textContent=m[1]});
+  var m={scroll:["Pehle neeche scroll karein","Neeche scroll karke \u201Cकैसे जुड़ें\u201D padhein, phir button active hoga."],wait:["Page taiyaar ho raha hai","Bas kuch second me button active ho jayega."],touch:["Screen ko ek baar touch karein","Button active karne ke liye screen ko touch ya scroll karein."],swipe:["","Slider ko poora right tak swipe karein, phir Telegram button active hoga."]}[k];
+  each(function(c,t,h){t.textContent=m[0];h.textContent=m[1];c.classList.toggle("swipe",k==="swipe")});
 }
 function refresh(){
   if(ready||!ALLOWED)return;
   var n=performance.now();
   if(!reached){lockUI("scroll");return}
   if(vis<CONFIG.MIN_DWELL_MS||n-reachedAt<CONFIG.MIN_READ_MS){lockUI("wait");return}
-  if(!human()){lockUI("touch");return}
+  if(CONFIG.SWIPE){if(!swiped){lockUI("swipe");return}}
+  else if(!human()){lockUI("touch");return}
   unlock();
 }
 
 if(!ALLOWED){
-  each(function(c,t,h){t.textContent=BOT?"Page taiyaar ho raha hai":(!GEO_OK?"Yeh page sirf India ke liye hai":"Meta ad link se page kholein");h.textContent=""});
+  each(function(c,t,h){t.textContent=BOT?"Page taiyaar ho raha hai":(!GEO_OK?"Yeh page sirf India ke liye hai":"Meta ad link se page kholein");h.textContent=/[?&]dbg=1/.test(location.search)?("dbg: bot="+BOT+" check#"+window.__why+" geo="+GEO_OK+" src="+SRC_OK+" tz="+(Intl.DateTimeFormat().resolvedOptions().timeZone)):""});
 }else{
   setInterval(function(){
     var n=performance.now(),d=n-last;last=n;
@@ -268,6 +297,82 @@ if(!ALLOWED){
     checkScroll();refresh();
   },100);
 }
+
+/* ---------- swipe-to-unlock: asli insaan ka gesture (bot / accidental tap form ke bina filter) ---------- */
+ctas.forEach(function(c){
+  var sw=c.querySelector(".sw"),kn=c.querySelector(".kn"),pf=c.querySelector(".pf");
+  if(!sw||!kn)return;
+  var sx=0,max=0,drag=false,t0=0,mv=0,pid=null,pos=0;
+  function set(p){pos=p;kn.style.transform="translateX("+p+"px)";pf.style.width=(p+58)+"px"}
+  kn.addEventListener("pointerdown",function(e){
+    if(!e.isTrusted||swiped)return;
+    drag=true;pid=e.pointerId;sx=e.clientX;mv=0;t0=performance.now();
+    max=Math.max(sw.clientWidth-kn.offsetWidth-8,10);
+    try{kn.setPointerCapture(pid)}catch(_){}
+    kn.style.transition="none";pf.style.transition="none";kn.style.animation="none";
+    e.preventDefault();
+  });
+  kn.addEventListener("pointermove",function(e){
+    if(!drag||e.pointerId!==pid||!e.isTrusted)return;
+    mv++;set(Math.max(0,Math.min(max,e.clientX-sx)));
+  });
+  function end(e){
+    if(!drag||e.pointerId!==pid)return;drag=false;
+    kn.style.transition="transform .25s";pf.style.transition="width .25s";
+    var ok=e.isTrusted&&e.type==="pointerup"&&pos>=max*.92&&mv>=4&&performance.now()-t0>=300;   // poora swipe + real movement + thoda time
+    if(ok){swiped=true;set(max)}else{set(0);kn.style.animation=""}
+  }
+  kn.addEventListener("pointerup",end);kn.addEventListener("pointercancel",end);
+});
+
+/* ---------- Lead sirf tab jab Telegram sach me khula (page background me gaya) ---------- */
+var sh=document.getElementById("sheet"),shT=document.getElementById("shT"),shP=document.getElementById("shP"),shB=document.getElementById("shB"),shGo=document.getElementById("shGo"),shInst=document.getElementById("shInst"),shOk=document.getElementById("shOk");
+var tapAt=-1e9,pending=false,leadSent=false,failT=0,awayAt=0,wasAway=false,backN=0,sheetOff=false,curMode="";
+function storeUrl(){return isAndroid?"https://play.google.com/store/apps/details?id=org.telegram.messenger":isIOS?"https://apps.apple.com/app/telegram-messenger/id686449807":"https://telegram.org/"}
+function showSheet(mode){
+  if(sheetOff||!ready)return;
+  curMode=mode;
+  if(mode==="fail"){
+    shT.textContent="Telegram नहीं खुला? · Telegram did not open?";
+    shP.textContent="नीचे का बटन दबाकर फिर कोशिश करें। Tap below to try again.";
+    shB.textContent="Telegram फिर से खोलें";
+    shInst.textContent="Telegram install nahi hai? Install karein";shInst.href=storeUrl();shInst.style.display="";
+  }else{
+    shT.textContent="Request to Join दबाया? · Did you tap Request to Join?";
+    shP.textContent="Request to Join दबाए बिना चैनल का एक्सेस नहीं मिलेगा। You get access only after you tap Request to Join.";
+    shB.textContent="Telegram पर वापस जाएँ";
+    shInst.style.display="none";
+  }
+  shGo.href=tgHref();sh.classList.add("show");
+}
+function fireLead(){
+  if(leadSent)return;leadSent=true;
+  var now=Date.now();ss(KEY,"1");ls(KEY,String(now));
+  try{fbq("track",CONFIG.EVENT,{content_name:CONFIG.NAME,content_category:"Telegram Join",src:HAS_FBCLID?"fbclid":"direct"},{eventID:"l_"+now+"_"+Math.random().toString(36).slice(2,10)})}catch(err){}
+}
+function beginHandoff(){
+  tapAt=performance.now();wasAway=false;clearTimeout(failT);
+  var now=Date.now(),prev=+ls(KEY)||0;
+  var dup=!!(ss(KEY)||(prev&&now-prev<CONFIG.COOLDOWN_HRS*36e5));   // dobara Lead nahi; navigation chalta rahe
+  if(!dup&&!leadSent){if(CONFIG.LEAD_AT==="tap")fireLead();else pending=true}
+  failT=setTimeout(function(){if(!wasAway&&document.visibilityState==="visible")showSheet("fail")},CONFIG.HANDOFF_MS);
+}
+function onAway(){
+  if(performance.now()-tapAt>CONFIG.HANDOFF_WINDOW_MS)return;
+  wasAway=true;awayAt=performance.now();clearTimeout(failT);
+  if(pending){pending=false;fireLead()}
+}
+document.addEventListener("visibilitychange",function(){
+  if(document.visibilityState==="hidden")onAway();
+  else if(wasAway&&awayAt&&performance.now()-awayAt>1500&&backN<2&&!sheetOff){backN++;awayAt=0;setTimeout(function(){showSheet("back")},700)}
+});
+addEventListener("pagehide",onAway);
+shGo.addEventListener("click",function(e){
+  if(!e.isTrusted){e.preventDefault();return}
+  sh.classList.remove("show");
+  if(curMode==="fail")beginHandoff();
+});
+shOk.addEventListener("click",function(){sh.classList.remove("show");if(curMode==="back")sheetOff=true});
 
 ctas.forEach(function(c){c.addEventListener("click",function(e){
   var n=performance.now(),bad=false;
@@ -280,10 +385,7 @@ ctas.forEach(function(c){c.addEventListener("click",function(e){
     if((e.clientX===0&&e.clientY===0)||e.clientX<r.left-2||e.clientX>r.right+2||e.clientY<r.top-2||e.clientY>r.bottom+2)bad=true;
   }
   if(bad){e.preventDefault();return}
-  var now=Date.now(),prev=+ls(KEY)||0;
-  if(ss(KEY)||(prev&&now-prev<CONFIG.COOLDOWN_HRS*36e5))return;     // dobara Lead nahi; navigation chalta rahe
-  ss(KEY,"1");ls(KEY,String(now));
-  try{fbq("track",CONFIG.EVENT,{content_name:CONFIG.NAME,content_category:"Telegram Join",src:/[?&]fbclid=/.test(location.search)?"fbclid":"direct"},{eventID:"l_"+now+"_"+Math.random().toString(36).slice(2,10)})}catch(err){}
+  beginHandoff();
   // valid tap par koi preventDefault / setTimeout nahi: native anchor navigation
 },false)});
 })();
